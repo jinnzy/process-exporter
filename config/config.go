@@ -187,6 +187,32 @@ func getProcessNames(procname interface{}) []string {
 	}
 
 	var names []string
+	// 检测report_missing字段是否出现
+	var reportMissingFlag int
+
+	// 检查report_missing字段，不存在则返回，默认不启用
+	for k, v := range nm {
+		key, ok := k.(string)
+		if !ok {
+			return nil
+		}
+		if key == "report_missing" {
+			reportMissingFlag = 1
+			value, ok := v.(bool)
+			if !ok {
+				return nil
+			}
+			// report_missing为true，跳出循环
+			if value {
+				break
+			}
+		}
+
+	}
+	// 没有report_missing字段则返回
+	if reportMissingFlag == 0 {
+		return nil
+	}
 	//check for 'name' field. If contains name field other fields are not extracted
 	for k, v := range nm {
 		key, ok := k.(string)
@@ -311,6 +337,8 @@ func getMatchNamer(yamlmn interface{}) (common.MatchNamer, error) {
 				return nil, fmt.Errorf("non-string value %v for key %q", v, key)
 			}
 			nametmpl = value
+		} else if key == "report_missing" {
+			continue
 		} else {
 			vals, ok := v.([]interface{})
 			if !ok {

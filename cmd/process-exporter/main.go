@@ -305,7 +305,7 @@ func main() {
 			"log debugging information to stdout")
 		showVersion = flag.Bool("version", false,
 			"print version information and exit")
-		reportMissing = flag.Bool("report.missing", false, "report a stopped process as having zero processes running when process exporter is first started")
+		//reportMissing = flag.Bool("report.missing", false, "report a stopped process as having zero processes running when process exporter is first started")
 	)
 	flag.Parse()
 
@@ -370,7 +370,7 @@ func main() {
 			Recheck:     *recheck,
 			Debug:       *debug,
 			processNames: *processNames,
-			reportMissing: *reportMissing,
+			//reportMissing: *reportMissing,
 		},
 	)
 	if err != nil {
@@ -421,7 +421,7 @@ type (
 		Recheck     bool
 		Debug       bool
 		processNames         []string
-		reportMissing        bool
+		//reportMissing        bool
 	}
 
 	NamedProcessCollector struct {
@@ -435,7 +435,7 @@ type (
 		scrapePartialErrors  int
 		debug                bool
 		processNames         []string
-		reportMissing        bool
+		//reportMissing        bool
 	}
 )
 
@@ -454,7 +454,7 @@ func NewProcessCollector(options ProcessCollectorOption) (*NamedProcessCollector
 		smaps:      options.GatherSMaps,
 		debug:      options.Debug,
 		processNames:  options.processNames,
-		reportMissing: options.reportMissing,
+		//reportMissing: options.reportMissing,
 	}
 
 	colErrs, _, err := p.Update(p.source.AllProcs())
@@ -521,9 +521,8 @@ func (p *NamedProcessCollector) scrape(ch chan<- prometheus.Metric) {
 		p.scrapeErrors++
 		log.Printf("error reading procs: %v", err)
 	} else {
-		if p.reportMissing {
+		//if p.reportMissing {
 			// loop over all process names, if process does not have process running (in groups) then report num_procs as zero
-			fmt.Printf("process name长度: %d", len(p.processNames))
 			for _, pName := range p.processNames {
 				_, present := groups[pName]
 				if !present {
@@ -531,7 +530,7 @@ func (p *NamedProcessCollector) scrape(ch chan<- prometheus.Metric) {
 						prometheus.GaugeValue, float64(0), pName)
 				}
 			}
-		}
+		//}
 		for gname, gcounts := range groups {
 			ch <- prometheus.MustNewConstMetric(numprocsDesc,
 				prometheus.GaugeValue, float64(gcounts.Procs), gname)
